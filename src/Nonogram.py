@@ -185,9 +185,7 @@ class Nonogram:
         if not self.solved:
             for k in range(2):
                 
-                # this check will be useful in the heurisitc solver
-                if tmpGrid[n//self.sizeX][n%self.sizeY]!= " ":
-                    tmpGrid[n//self.sizeX][n%self.sizeY] = k
+                tmpGrid[n//self.sizeX][n%self.sizeY] = k
                 
                 #recurse
                 if n<self.sizeY*self.sizeX-1:
