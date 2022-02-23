@@ -43,3 +43,6 @@ print(game2)
 print("\nSolving this one with the naive solver would take a lot of time...")
 print("2**50 node to check !!!")
 print("Another solver must be used - work in progress")
+
+game2.heurisitcSolver()
+print(game2)
