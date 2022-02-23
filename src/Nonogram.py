@@ -136,12 +136,39 @@ class Nonogram:
             R.append(cpt)
         return R
     
+    def checkCRSolved(self, isCol, n):
+        """
+        Checks if a col/row (CR) on index n is completed
+
+        Parameters
+        ----------
+        isCol : bool
+            True if it's a column
+        n : int
+            index of the CR that needs to be checked
+
+        Returns
+        -------
+        bool
+            True if the CR is completed
+
+        """
+        
+        if isCol:
+            col = self.getColumn(n)
+            return self.gridInfo[0][n]==self.groupByOne(col)
+        
+        return self.gridInfo[1][n]==self.groupByOne(self.grid[n])
+            
+    
     def checkGridSolved(self):
         """
         Checks each row and column if their groupByOne corresponds to their
         respective indications, if yes, then it's solved
 
-        coherence checking as been directly implemented in this function
+            coherence checking as been directly implemented in this function
+        update : no longer done in this function
+        
         Returns
         -------
         bool
@@ -149,13 +176,12 @@ class Nonogram:
         """
         #checking columns
         for i in range(self.sizeY):
-            col = self.getColumn(i)
-            if (self.gridInfo[0][i]!=self.groupByOne(col)):
+            if not self.checkCRSolved(True, i):
                 return False
         
         #checking rows
         for j in range(self.sizeX):
-            if (self.gridInfo[1][j]!=self.groupByOne(self.grid[j])):
+            if not self.checkCRSolved(False, j):
                 return False
         
         self.solved = True
