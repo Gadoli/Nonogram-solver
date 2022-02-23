@@ -6,6 +6,8 @@ Created on Mon Feb  7 19:21:26 2022
 
 CSP Projet - Nonogram
 black and white
+
+N.B. : the code is not idiot proof
 """
 
 import copy
@@ -84,7 +86,7 @@ class Nonogram:
         for j in range(self.sizeY):
             R.append([])
             for i in range(self.sizeX):
-                R[j].append(" ") # initialised with 1 space
+                R[j].append(0) # initialised with 0 - so 'or' can be usable
         return R
     
     def updateGrid(self, grid):
@@ -99,7 +101,7 @@ class Nonogram:
     def getColumn(self, n):
         """
         n : int
-            between 0 and number of rows
+            between 0 and number of rows excluded
         returns in a list the specific column of the grid
         """
         R = []
@@ -190,6 +192,107 @@ class Nonogram:
                 #recurse
                 if n<self.sizeY*self.sizeX-1:
                     self.naiveSolver(n+1, copy.deepcopy(tmpGrid))
+                    
+                    
+                    
+    def colorMinCR(self, isCol, n, reverse):
+        """
+        col/row (CR)
+        Given an indication, colors a CR by the start or by the end 
+        and returns it
+        
+        Parameters
+        ----------
+        isCol : bool
+            True if it's a column
+        n : int
+            the index of the CR
+        indic : list
+            an indication of CR as given in paramter (see Main.py)
+        reverse : bool
+            if you want to reverse the result, useful for intersection
+
+        Returns
+        -------
+        R : list
+            returns a list of the minimum outcome from the start or the end
+
+        """
+        # definition
+        R = []
+        
+        # getting indications
+        if isCol:
+            tmp = self.gridInfo[0][n]
+        else:
+            tmp = self.gridInfo[1][n]
+        
+        CR = copy.deepcopy(tmp)
+            
+        if reverse:
+            CR.reverse()
+        
+        # min possibility 
+        for i in range(len(CR)):
+            R += [1] * CR[i]
+            if i!=(len(CR)-1):
+                R += [0]
+        
+        # adding 0 to have the correct size with the grid
+        if isCol:
+            R += [0] * (self.sizeY - len(R))
+        else:
+            R += [0] * (self.sizeX - len(R))
+        
+        if reverse:
+            R.reverse()
+        
+        return R
+        
+    
+    def possibInter(self, isCol, n):
+        """
+        returns a list of for certain coloring within a col/row
+        for the moment it does it from scratch and no info
+
+        Parameters
+        ----------
+        isCol : bool
+            True if you're working on a column
+        n : int
+            the index of the CR
+
+        Returns
+        -------
+        R : list
+            returns a intersection of the "min/max" possible way of arregement
+        """
+        R = []
+        
+        A = self.colorMinCR(isCol, n, False)
+        B = self.colorMinCR(isCol, n, True)
+        
+        for i in range(len(A)):
+            R.append(A[i]*B[i])
+        
+        return R
+    
+    def updateCol(self, L, n):
+        """ updates the column on index n with L
+            doesn't work if L's length is the same as sizeY (col length)
+        """
+        # idiot-proof verification
+        if len(L)!=self.sizeY or n>= self.sizeX:
+            return None
+        
+        # updating
+        for i in range(self.sizeY):
+            tmp = self.grid[i][n]
+            self.grid[i][n] = tmp or L[i] 
+            # N.B. 'X' or 1 and 'X' or 0 gives 'X'
+            # so 'X' will be the impossible caracter
+        
+        
             
     def heurisitcSolver(self):
         """ heurisitc solver as describe in the report
@@ -199,9 +302,17 @@ class Nonogram:
             although it will be updated on github
         """
         
-        # A - double union
+        # A - possibility intersection
+        # rows
+        for j in range(self.sizeY):
+            self.grid[j] = self.possibInter(False, j)
+        # cols
+        for i in range(self.sizeX):
+            self.updateCol(self.possibInter(True, i), i)
         
         # B - propagation 
+        # place cross 
+        # unify
         
         
         return True
